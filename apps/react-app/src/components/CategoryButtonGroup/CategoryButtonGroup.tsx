@@ -1,42 +1,30 @@
 import { ButtonGroup } from '@mui/material';
 
 import { Container, StyledButton } from './CategoryButtonGroup.styles';
-import { ReactNode } from 'react';
+import { Category } from '../../types';
 
-const categoryOptions = [
-  {
-    key: 'all',
-    name: 'All'
-  },
-  {
-    key: 'healt',
-    name: 'Health'
-  },
-  {
-    key: 'travel',
-    name: 'Travel'
-  },
-  {
-    key: 'sports',
-    name: 'Sports'
-  }
-];
+interface CategoryButtonGroupProps {
+  categories: Category[];
+  selectedCategory: Category | null;
+  handleSelectCategory: (category: Category) => void;
+}
 
-const buttons: ReactNode[] = [];
-
-categoryOptions.forEach((category) => {
-  buttons.push(
-    <StyledButton type="button" selected={false}>
-      {category.name}
-    </StyledButton>
-  );
-});
-
-function CategoryButtonGroup() {
+function CategoryButtonGroup({ categories, selectedCategory, handleSelectCategory }: CategoryButtonGroupProps) {
   return (
     <Container item>
       <ButtonGroup aria-label="category button group" color="inherit">
-        {buttons}
+        <StyledButton type="button" selected={false}>
+          {/* Activity 1 - Render category name */}
+        </StyledButton>
+        <StyledButton type="button" selected={false}>
+          {/* Activity 1 - Render category name */}
+        </StyledButton>
+        <StyledButton type="button" selected={false}>
+          {/* Activity 1 - Render category name */}
+        </StyledButton>
+        <StyledButton type="button" selected={false}>
+          {/* Activity 1 - Render category name */}
+        </StyledButton>
       </ButtonGroup>
     </Container>
   );
