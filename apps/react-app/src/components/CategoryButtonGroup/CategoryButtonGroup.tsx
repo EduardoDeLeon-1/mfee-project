@@ -2,7 +2,6 @@ import { ButtonGroup } from '@mui/material';
 
 import { Container, StyledButton } from './CategoryButtonGroup.styles';
 import { Category } from '../../types';
-import { ReactNode } from 'react';
 
 interface CategoryButtonGroupProps {
   categories: Category[];
@@ -11,18 +10,19 @@ interface CategoryButtonGroupProps {
 }
 
 function CategoryButtonGroup({ categories, selectedCategory, handleSelectCategory }: CategoryButtonGroupProps) {
-  const categoryNodes: ReactNode[] = [];
-  categories.forEach((category) => {
-    categoryNodes.push(
-      <StyledButton type="button" selected={false}>
-        {category.name}
-      </StyledButton>
-    );
-  });
   return (
     <Container item>
       <ButtonGroup aria-label="category button group" color="inherit">
-        {categoryNodes}
+        {categories.map((category) => (
+          <StyledButton
+            type="button"
+            key={category.id}
+            selected={category.name === selectedCategory?.name}
+            onClick={() => handleSelectCategory(category)}
+          >
+            {category.name}
+          </StyledButton>
+        ))}
       </ButtonGroup>
     </Container>
   );
