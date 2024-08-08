@@ -1,12 +1,13 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-import { Post } from '../types';
+import { NewPost, Post } from '../types';
 import { SnackbarContext } from './SnackbarProvider';
 
 interface PostContextProps {
   posts: Post[] | null;
   getPosts: (categoryID?: string) => void;
-  removePost: ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => void;
+  removePost: (postID: string) => void;
+  createOrUpdatePost: ({ method, newPost, postID }: { method: 'post' | 'patch'; newPost: NewPost; postID?: string }) => void;
 }
 
 interface PostProviderProps {
@@ -16,7 +17,8 @@ interface PostProviderProps {
 export const PostContext = createContext<PostContextProps>({
   posts: [] || null,
   getPosts: () => {},
-  removePost: () => {}
+  removePost: () => {},
+  createOrUpdatePost: () => {}
 });
 
 const postList: Post[] = [
@@ -66,21 +68,40 @@ export function PostProvider({ children }: PostProviderProps): React.JSX.Element
     [serverData]
   );
 
+  const createOrUpdatePost = useCallback(({ method, newPost, postID }: { method: 'post' | 'patch'; newPost: NewPost; postID?: string }) => {
+    const { category: postCategory, ...rest } = newPost;
+    const selectedCategory = postList?.map((post) => post.category).filter((category) => category?._id === postCategory)[0];
+    if (method === 'post') {
+      const post: Post = {
+        id: Math.random().toString(),
+        category: selectedCategory,
+        comments: [],
+        ...rest
+      };
+      setServerData((prev) => [...prev, post]);
+    }
+    if (method === 'patch') {
+      setServerData((prev) => prev.map((post) => (post.id === postID ? { ...post, ...newPost, category: selectedCategory } : post)));
+    }
+  }, []);
+
   const removePost = useCallback(
-    ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => {
+    (postID: string) => {
       setServerData((prev) => prev.filter((post: Post) => post.id !== postID));
-      getPosts(selectedCategoryID);
       createAlert('The post was deleted successfully!', 'success');
     },
-    [getPosts, createAlert]
+    [createAlert]
   );
+
+  useEffect(() => setPosts(serverData), [serverData]);
 
   return (
     <PostContext.Provider
       value={{
         posts,
         getPosts,
-        removePost
+        removePost,
+        createOrUpdatePost
       }}
     >
       {children}
