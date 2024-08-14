@@ -1,5 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
 import Banner from '../../Banner';
-import CommentCard from '../../CommentCard';
+import Comments from '../../Comments';
+import { Comment } from '../../../types/index';
 import { Container, BannerContainer, CommentsContainer, DescriptionContainer } from './PostPage.styles';
 
 const post = {
@@ -26,6 +28,18 @@ const post = {
 };
 
 function PostPage() {
+  const [comments, setComment] = useState<Comment[]>(post.comments);
+
+  const handleCommentSubmition = useCallback(
+    (comment: Comment) => {
+      console.log(comments);
+      setComment([...comments, comment]);
+    },
+    [comments]
+  );
+
+  useEffect(() => {}, [comments]);
+
   return (
     <Container container>
       Post page
@@ -36,7 +50,8 @@ function PostPage() {
         <p>{post.description}</p>
       </DescriptionContainer>
       <CommentsContainer item>
-        <CommentCard author={post.comments[0].author} content={post.comments[0].content} />
+        {/* <CommentCard author={post.comments[0].author} content={post.comments[0].content} /> */}
+        <Comments comments={comments} handleCommentSubmition={handleCommentSubmition} />
       </CommentsContainer>
     </Container>
   );

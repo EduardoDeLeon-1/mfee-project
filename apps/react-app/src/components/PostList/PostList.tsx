@@ -4,7 +4,7 @@ import { Grid, IconButton, Typography } from '@mui/material';
 
 import { shorten } from '../../common/utils';
 import { CardActions, CardContainer, CardContent, PostCard } from './PostList.styles';
-import { Post } from '../../types';
+import { Category, Post } from '../../types';
 import { PostContext } from '../../context';
 import { useContext } from 'react';
 

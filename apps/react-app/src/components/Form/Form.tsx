@@ -1,56 +1,47 @@
-import * as React from "react";
-import {
-  Button,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
+import * as React from 'react';
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, SelectChangeEvent } from '@mui/material';
 
-import { NewPost, Post } from "../../types";
-import { validator } from "../../common/utils";
-import { PostContext } from "../../context";
-import { FormInputs, Inputs } from "../../types";
+import { NewPost, Post } from '../../types';
+import { validator } from '../../common/utils';
+import { PostContext } from '../../context';
+import { FormInputs, Inputs } from '../../types';
 
 const inputs: Inputs = [
   {
-    id: "title-id",
-    name: "title",
-    label: "Title",
-    type: "text",
+    id: 'title-id',
+    name: 'title',
+    label: 'Title',
+    type: 'text'
   },
   {
-    id: "description-id",
-    name: "description",
-    label: "Description",
-    type: "text",
+    id: 'description-id',
+    name: 'description',
+    label: 'Description',
+    type: 'text'
   },
   {
-    id: "category-label",
-    name: "category",
-    label: "Category",
-    type: "menu",
+    id: 'category-label',
+    name: 'category',
+    label: 'Category',
+    type: 'menu',
     options: [
-      { id: "663fef70d513515319551d1f", name: "Travel" },
-      { id: "663fef70d513515319546d1f", name: "Food" },
-    ],
+      { id: '663fef70d513515319551d1f', name: 'Travel' },
+      { id: '663fef70d513515319546d1f', name: 'Food' }
+    ]
   },
   {
-    id: "url-id",
-    name: "image",
-    label: "URL of the image",
-    type: "url",
-  },
+    id: 'url-id',
+    name: 'image',
+    label: 'URL of the image',
+    type: 'url'
+  }
 ];
 
 const emptyInputs: FormInputs = {
-  title: { value: "", error: "" },
-  description: { value: "", error: "" },
-  category: { value: "", error: "" },
-  image: { value: "", error: "" },
+  title: { value: '', error: '' },
+  description: { value: '', error: '' },
+  category: { value: '', error: '' },
+  image: { value: '', error: '' }
 };
 
 interface FormProps {
@@ -67,10 +58,10 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
   React.useEffect(() => {
     if (!post) return;
     const existingPost = {
-      title: { value: post.title, error: "" },
-      description: { value: post.description, error: "" },
-      category: { value: post.category?._id || "", error: "" },
-      image: { value: post.image, error: "" },
+      title: { value: post.title, error: '' },
+      description: { value: post.description, error: '' },
+      category: { value: post.category?._id || '', error: '' },
+      image: { value: post.image, error: '' }
     };
     setFormData(existingPost);
   }, [post]);
@@ -81,7 +72,7 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
     setSelectedPost(null);
   };
 
-  const hanldeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const inputs = Object.values(formData);
@@ -92,39 +83,31 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
       title: formData.title.value,
       image: formData.image.value,
       description: formData.description.value,
-      category: formData.category.value,
+      category: formData.category.value
     };
 
     createOrUpdatePost({
-      method: post ? "patch" : "post",
+      method: post ? 'patch' : 'post',
       newPost,
-      postID: post?.id,
+      postID: post?.id
     });
     handleClose();
   };
 
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: { value, error: "" },
+      [name]: { value, error: '' }
     }));
   };
 
-  const handleBlur = (
-    e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent
-  ) => {
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     const { name, value } = e.target;
     const error = validator({ name, value });
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: { ...prevFormData[name as keyof FormInputs], error },
+      [name]: { ...prevFormData[name as keyof FormInputs], error }
     }));
   };
 
@@ -133,8 +116,8 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
       open={open}
       onClose={handleClose}
       PaperProps={{
-        component: "form",
-        onSubmit: hanldeSubmit,
+        component: 'form',
+        onSubmit: handleSubmit
       }}
     >
       <DialogTitle variant="h5" textAlign="center">
@@ -143,7 +126,7 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
       <DialogContent>
         {inputs.map((input, idx) => (
           <React.Fragment key={idx}>
-            {(input.type === "text" || input.type === "url") && (
+            {(input.type === 'text' || input.type === 'url') && (
               <TextField
                 required
                 fullWidth
@@ -158,10 +141,10 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
                 sx={{ paddingBottom: 2 }}
                 value={formData[input.name].value}
                 error={!!formData[input.name].error}
-                helperText={formData[input.name].error ?? " "}
+                helperText={formData[input.name].error ?? ' '}
               />
             )}
-            {input.type === "menu" && (
+            {input.type === 'menu' && (
               <TextField
                 select
                 required
@@ -174,7 +157,7 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
                 onChange={handleChange}
                 value={`${formData[input.name].value}`}
                 error={!!formData[input.name].error}
-                helperText={formData[input.name].error ?? " "}
+                helperText={formData[input.name].error ?? ' '}
               >
                 {input.options?.map((option, idx) => (
                   <MenuItem value={option.id ?? option.name} key={idx}>

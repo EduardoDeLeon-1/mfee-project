@@ -1,11 +1,25 @@
+import { createContext } from 'react';
 import { Grid } from '@mui/material';
 
 import NavBar from './components/NavBar';
 import { CategoriesPage, HomePage, LoginPage, PostPage } from './components/Page';
 import { PostProvider, SnackbarProvider } from './context';
+import { User } from './types';
+
+interface AppContextProps {
+  users: User[] | null;
+  getUsers: (username?: string) => void;
+  removeUser: (username: string) => void;
+}
+
+export const AppContext = createContext<AppContextProps>({
+  users: [] || null,
+  getUsers: () => {},
+  removeUser: () => {}
+});
 
 function App() {
-  const page: string = 'HomePage';
+  const page: string = 'PostPage';
   return (
     <SnackbarProvider>
       <PostProvider>

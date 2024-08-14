@@ -41,7 +41,7 @@ function HomePage() {
     <>
       <CreatePostButton handleOpenForm={handleOpenForm} />
       <CategoryButtonGroup categories={categories} selectedCategory={selectedCategory} handleSelectCategory={handleSelectCategory} />
-      <PostList posts={posts} handleOpenForm={handleOpenForm} />
+      <PostList posts={posts} selectedCategory={null} handleOpenForm={handleOpenForm} />
       <Form open={openForm} post={selectedPost} setOpen={setOpenForm} setSelectedPost={setSelectedPost} />
     </>
   );
