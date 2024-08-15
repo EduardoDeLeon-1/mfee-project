@@ -23,6 +23,16 @@ function CategoryButtonGroup({ categories, selectedCategory, handleSelectCategor
             {category.name}
           </StyledButton>
         ))}
+        {categories.map((category) => (
+          <StyledButton
+            type="button"
+            key={category.id}
+            selected={category.name === selectedCategory?.name}
+            onClick={() => handleSelectCategory(category)}
+          >
+            {category.name}
+          </StyledButton>
+        ))}
       </ButtonGroup>
     </Container>
   );

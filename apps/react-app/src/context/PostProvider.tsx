@@ -1,13 +1,24 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-import { NewPost, Post } from '../types';
+import { NewPost, NewPost, Post, PostsResponse } from '../types';
 import { SnackbarContext } from './SnackbarProvider';
+import { createPost, deletePost, getPosts, getPostsByCategory, updatePost } from '../api';
 
 interface PostContextProps {
   posts: Post[] | null;
-  getPosts: (categoryID?: string) => void;
-  removePost: (postID: string) => void;
-  createOrUpdatePost: ({ method, newPost, postID }: { method: 'post' | 'patch'; newPost: NewPost; postID?: string }) => void;
+  loadingPosts: boolean;
+  addPost: (newPost: NewPost) => void;
+  removePost: ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => void;
+  getPostList: (selectedCategoryID?: string) => void;
+  updatePostData: ({
+    postID,
+    updatedPost,
+    selectedCategoryID
+  }: {
+    postID: string;
+    updatedPost: NewPost;
+    selectedCategoryID?: string;
+  }) => void;
 }
 
 interface PostProviderProps {
@@ -15,10 +26,12 @@ interface PostProviderProps {
 }
 
 export const PostContext = createContext<PostContextProps>({
-  posts: [] || null,
-  getPosts: () => {},
+  posts: null,
+  loadingPosts: false,
+  addPost: () => {},
   removePost: () => {},
-  createOrUpdatePost: () => {}
+  getPostList: () => {},
+  updatePostData: () => {}
 });
 
 const postList: Post[] = [
@@ -55,53 +68,95 @@ const postList: Post[] = [
 ];
 
 export function PostProvider({ children }: PostProviderProps): React.JSX.Element {
-  const { createAlert } = useContext(SnackbarContext);
-  const [serverData, setServerData] = useState(postList);
-  const [posts, setPosts] = useState<Post[] | null>(postList);
+  const createAlert = useContext(SnackbarContext);
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
-  const getPosts = useCallback(
-    (categoryID?: string) => {
-      const selectedCategory = serverData.filter((post: Post) => post.category?._id === categoryID);
-      const newPosts = categoryID ? selectedCategory : serverData;
-      setPosts(newPosts);
-    },
-    [serverData]
-  );
+  const onLoading = (isLoading: boolean) => {
+    setLoadingPosts(isLoading);
+  };
 
-  const createOrUpdatePost = useCallback(({ method, newPost, postID }: { method: 'post' | 'patch'; newPost: NewPost; postID?: string }) => {
-    const { category: postCategory, ...rest } = newPost;
-    const selectedCategory = postList?.map((post) => post.category).filter((category) => category?._id === postCategory)[0];
-    if (method === 'post') {
-      const post: Post = {
-        id: Math.random().toString(),
-        category: selectedCategory,
-        comments: [],
-        ...rest
-      };
-      setServerData((prev) => [...prev, post]);
-    }
-    if (method === 'patch') {
-      setServerData((prev) => prev.map((post) => (post.id === postID ? { ...post, ...newPost, category: selectedCategory } : post)));
-    }
+  const onError = useCallback(() => {
+    // createAlert({
+    //   message: "Something went wrong.",
+    //   severity: "error",
+    // });
   }, []);
 
-  const removePost = useCallback(
-    (postID: string) => {
-      setServerData((prev) => prev.filter((post: Post) => post.id !== postID));
-      createAlert('The post was deleted successfully!', 'success');
+  const getPostList = useCallback(
+    async (selectedCategoryID?: string) => {
+      const onSuccess = async (data: PostsResponse[]) => {
+        const newList = data.map((post) => ({
+          id: post._id,
+          title: post.title,
+          image: post.image,
+          description: post.description,
+          category: post.category,
+          comments: post.comments
+        }));
+        setPosts(newList);
+      };
+
+      const params = { onSuccess, onError, onLoading };
+      selectedCategoryID ? await getPostsByCategory({ selectedCategoryID, ...params }) : await getPosts(params);
     },
-    [createAlert]
+    [onError]
   );
 
-  useEffect(() => setPosts(serverData), [serverData]);
+  const addPost = useCallback(
+    async (newPost: NewPost) => {
+      const onSuccess = async () => {
+        await getPostList();
+        // createAlert({
+        //   message: "Post successfully created.",
+        //   severity: "success",
+        // });
+      };
+
+      await createPost({ newPost, onSuccess, onError, onLoading });
+    },
+    [onError, getPostList]
+  );
+
+  const updatePostData = useCallback(
+    async ({ postID, updatedPost, selectedCategoryID }: { postID: string; updatedPost: NewPost; selectedCategoryID?: string }) => {
+      const onSuccess = async () => {
+        await getPostList(selectedCategoryID);
+        // createAlert({
+        //   message: "Post successfully updated.",
+        //   severity: "success",
+        // });
+      };
+
+      await updatePost({ postID, updatedPost, onSuccess, onError, onLoading });
+    },
+    [onError, getPostList]
+  );
+
+  const removePost = useCallback(
+    async ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => {
+      const onSuccess = async () => {
+        await getPostList(selectedCategoryID);
+        // createAlert({
+        //   message: "Post successfully deleted.",
+        //   severity: "success",
+        // });
+      };
+      setLoadingPosts(true);
+      await deletePost({ postID, onSuccess, onError });
+    },
+    [onError, getPostList]
+  );
 
   return (
     <PostContext.Provider
       value={{
         posts,
-        getPosts,
+        loadingPosts,
+        addPost,
         removePost,
-        createOrUpdatePost
+        getPostList,
+        updatePostData
       }}
     >
       {children}

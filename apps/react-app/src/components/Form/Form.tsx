@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, SelectChangeEvent } from '@mui/material';
 
-import { NewPost, Post } from '../../types';
+import { Category, NewPost, Post } from '../../types';
 import { validator } from '../../common/utils';
 import { PostContext } from '../../context';
 import { FormInputs, Inputs } from '../../types';
@@ -46,21 +46,23 @@ const emptyInputs: FormInputs = {
 
 interface FormProps {
   open: boolean;
-  post?: Post | null;
+  post: Post | null;
+  categories: Category[] | null;
+  selectedCategory: Category | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedPost: (value: React.SetStateAction<Post | null>) => void;
 }
 
-const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
+const Form = ({ open, post, categories, selectedCategory, setOpen, setSelectedPost }: FormProps) => {
   const [formData, setFormData] = React.useState(emptyInputs);
-  const { createOrUpdatePost } = React.useContext(PostContext);
+  const { addPost, updatePostData } = React.useContext(PostContext);
 
   React.useEffect(() => {
     if (!post) return;
     const existingPost = {
       title: { value: post.title, error: '' },
       description: { value: post.description, error: '' },
-      category: { value: post.category?._id || '', error: '' },
+      category: { value: post.category?._id ?? '', error: '' },
       image: { value: post.image, error: '' }
     };
     setFormData(existingPost);
@@ -72,7 +74,7 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
     setSelectedPost(null);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const hanldeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const inputs = Object.values(formData);
@@ -86,12 +88,15 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
       category: formData.category.value
     };
 
-    createOrUpdatePost({
-      method: post ? 'patch' : 'post',
-      newPost,
-      postID: post?.id
-    });
     handleClose();
+
+    post
+      ? await updatePostData({
+          postID: post.id,
+          updatedPost: newPost,
+          selectedCategoryID: selectedCategory?.id
+        })
+      : await addPost(newPost);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
@@ -159,7 +164,7 @@ const Form = ({ open, post, setOpen, setSelectedPost }: FormProps) => {
                 error={!!formData[input.name].error}
                 helperText={formData[input.name].error ?? ' '}
               >
-                {input.options?.map((option, idx) => (
+                {categories?.map((option, idx) => (
                   <MenuItem value={option.id ?? option.name} key={idx}>
                     {option.name}
                   </MenuItem>

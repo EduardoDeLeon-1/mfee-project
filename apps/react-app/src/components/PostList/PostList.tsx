@@ -1,12 +1,12 @@
+import { useContext } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Grid, IconButton, Typography } from '@mui/material';
 
 import { shorten } from '../../common/utils';
-import { CardActions, CardContainer, CardContent, PostCard } from './PostList.styles';
 import { Category, Post } from '../../types';
 import { PostContext } from '../../context';
-import { useContext } from 'react';
+import { CardActions, CardContainer, CardContent, PostCard } from './PostList.styles';
 
 interface PostListProps {
   posts: Post[];
@@ -14,7 +14,7 @@ interface PostListProps {
   handleOpenForm: (defaultValues?: Post) => void;
 }
 
-function PostList({ posts, handleOpenForm }: PostListProps) {
+function PostList({ posts, selectedCategory, handleOpenForm }: PostListProps) {
   const { removePost } = useContext(PostContext);
 
   return (
@@ -45,7 +45,10 @@ function PostList({ posts, handleOpenForm }: PostListProps) {
                 color="inherit"
                 onClick={(e) => {
                   e.stopPropagation();
-                  removePost(post.id);
+                  removePost({
+                    postID: post.id,
+                    selectedCategoryID: selectedCategory?.id
+                  });
                 }}
               >
                 <DeleteIcon />

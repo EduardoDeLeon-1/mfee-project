@@ -62,6 +62,7 @@ function CategoriesPage() {
 
   function handleEditItem() {}
   function handleDeleteItem() {}
+  // ACT 9 - Use the getList, create, edit, delete and update categories APIs
 
   return (
     <PageContainer container>

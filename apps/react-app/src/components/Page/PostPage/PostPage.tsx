@@ -4,6 +4,8 @@ import Comments from '../../Comments';
 import { Comment } from '../../../types/index';
 import { Container, BannerContainer, CommentsContainer, DescriptionContainer } from './PostPage.styles';
 
+// const postID = "664128a212f505651c18d676"
+
 const post = {
   id: '1.23',
   title: 'A good place to camp',
@@ -40,6 +42,7 @@ function PostPage() {
 
   useEffect(() => {}, [comments]);
 
+  // ACT 9 - Use postID variable to fetch the post data
   return (
     <Container container>
       Post page
