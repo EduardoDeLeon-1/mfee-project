@@ -74,7 +74,7 @@ const Form = ({ open, post, categories, selectedCategory, setOpen, setSelectedPo
     setSelectedPost(null);
   };
 
-  const hanldeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const inputs = Object.values(formData);

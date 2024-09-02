@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
-  Box,
   Button,
+  Dialog,
+  DialogTitle,
   Grid,
   IconButton,
-  Modal,
   Paper,
   Table,
   TableBody,
@@ -12,20 +12,23 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
-  Typography
+  TextField
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { AxiosError, AxiosResponse } from 'axios';
 
 import { PageContainer } from './CategoriesPage.styles';
-import { Category } from '../../../types';
+import { createCategory, deleteCategory, getCategories /* updateCategory */, updateCategory } from '../../../api';
+import axiosInstance from '../../../api/axios';
+import { /* CreateAlert, */ SnackbarContext } from '../../../context/SnackbarProvider';
+import { CategoriesResponse, Category, NewCategory } from '../../../types';
 
-const categories: Category[] = [
-  { id: '663fef70d513515319551d1f', name: 'Travel' },
-  { id: '663fef70d513515319546d1f', name: 'Food' }
-];
+const emptyCategory = { id: '', name: '' };
+const emptyInput = {
+  name: { value: '', error: '' }
+};
 
 const style = {
   position: 'absolute' as const,
@@ -33,45 +36,144 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
+  padding: '1em',
   bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
+  // boxShadow: 24,
   p: 4
 };
 
 function CategoriesPage() {
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState<Category>(emptyCategory); // The category to be edited.
+  const [formData, setFormData] = useState(emptyInput);
   const [open, setOpen] = useState(false);
-  const [rows, setRows] = useState(categories);
+  const [rows, setRows] = useState<Category[] | null>(null);
+  const { createAlert } = useContext(SnackbarContext);
 
-  const handleAdd = (categoryName: string) => {
-    categories.push({
-      id: categories[categories.length - 1].id,
-      name: categoryName
-    });
-    setRows(categories);
-    handleClose();
+  // const handleAdd = (categoryName: string) => {
+  //   categories.push({
+  //     id: categories[categories.length - 1].id,
+  //     name: categoryName
+  //   });
+  //   setRows(categories);
+  //   handleClose();
+  // };
+
+  const onError = useCallback(() => {
+    createAlert('Something went wrong.', 'error');
+  }, [createAlert]);
+
+  const getCategoryList = useCallback(async () => {
+    const onSuccess = async (data: CategoriesResponse[]) => {
+      const newList = data.map((category) => ({
+        id: category._id,
+        name: category.name,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        __v: category.__v
+      }));
+      setRows(newList);
+    };
+
+    const params = { onSuccess, onError };
+    await getCategories(params);
+  }, [onError]);
+
+  const addCategory = useCallback(
+    async (newCategory: NewCategory) => {
+      const onSuccess = async () => {
+        await getCategoryList();
+        createAlert('Category successfully created.', 'success');
+      };
+
+      await createCategory({ newCategory, onSuccess, onError });
+    },
+    [createAlert, getCategoryList, onError]
+  );
+
+  const updateCategoryData = useCallback(
+    async ({ categoryId, updatedCategory }: { categoryId: string; updatedCategory: NewCategory }) => {
+      const onSuccess = async () => {
+        await getCategoryList();
+        createAlert('Category successfully updated.', 'success');
+      };
+
+      await updateCategory({ categoryId, updatedCategory, onSuccess, onError });
+    },
+    [createAlert, onError, getCategoryList]
+  );
+
+  const removeCategory = useCallback(
+    async ({ categoryId }: { categoryId: string }) => {
+      const onSuccess = async () => {
+        await getCategoryList();
+        createAlert('Category successfully deleted.', 'success');
+      };
+      await deleteCategory({ categoryId, onSuccess, onError });
+    },
+    [createAlert, onError, getCategoryList]
+  );
+
+  const handleClose = () => {
+    setFormData(emptyInput);
+    setOpen(false);
   };
 
-  const handleClose = () => setOpen(false);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const inputs = Object.values(formData);
+    const containError = inputs.map((input) => input.error).some((v) => !!v);
+    if (containError) return;
+
+    const newCategory: NewCategory = {
+      name: formData.name.value
+    };
+
+    handleClose();
+
+    category !== emptyCategory
+      ? await updateCategoryData({
+          categoryId: category.id,
+          updatedCategory: newCategory
+        })
+      : await addCategory(newCategory);
+
+    setCategory(emptyCategory);
+  };
+
   const handleOpen = () => setOpen(true);
 
-  function handleCategory(str: string) {
-    setCategory(str);
+  const handleNew = () => {
+    handleOpen();
+    setCategory(emptyCategory);
+  };
+
+  function handleEditItem(category: Category) {
+    handleOpen();
+    setCategory(category);
   }
 
-  function handleEditItem() {}
-  function handleDeleteItem() {}
-  // ACT 9 - Use the getList, create, edit, delete and update categories APIs
+  useEffect(() => {
+    axiosInstance({
+      url: '/categories',
+      method: 'get'
+    })
+      .then((res: AxiosResponse) => {
+        getCategoryList();
+      })
+      .catch((res: AxiosError) => {
+        console.log(res);
+      });
+  });
 
   return (
     <PageContainer container>
-      Categories Page
       <Grid item sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-        <IconButton aria-label="open" onClick={handleOpen}>
+        <IconButton aria-label="open" onClick={handleNew}>
           <AddIcon />
         </IconButton>
       </Grid>
+
       <Grid item sx={{ flexGrow: 1 }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -83,18 +185,29 @@ function CategoriesPage() {
             </TableHead>
 
             <TableBody>
-              {rows.map((row) => (
+              {rows?.map((row) => (
                 <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                   <TableCell component="th" scope="row">
                     {row.name}
                   </TableCell>
 
                   <TableCell>
-                    <IconButton aria-label="delete" onClick={handleDeleteItem}>
+                    <IconButton
+                      aria-label="delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeCategory({ categoryId: row.id });
+                      }}
+                    >
                       <DeleteIcon />
                     </IconButton>
 
-                    <IconButton aria-label="edit" onClick={handleEditItem}>
+                    <IconButton
+                      aria-label="edit"
+                      onClick={() => {
+                        handleEditItem(row);
+                      }}
+                    >
                       <EditIcon />
                     </IconButton>
                   </TableCell>
@@ -104,18 +217,35 @@ function CategoriesPage() {
           </Table>
         </TableContainer>
       </Grid>
-      <Modal open={open} onClose={handleClose} aria-labelledby="categories-title" aria-describedby="categories-desc">
-        <Box sx={style}>
-          <Typography id="categories-title" variant="h6" component="h2">
-            Add a category
-          </Typography>
 
-          <TextField fullWidth required id="category-modal-body" label="Category name" onChange={(e) => handleCategory(e.target.value)} />
-          <Button type="submit" variant="contained" onClick={(e) => handleAdd(category)}>
-            Submit
-          </Button>
-        </Box>
-      </Modal>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: handleSubmit,
+          style: style
+        }}
+        aria-labelledby="categories-title"
+        aria-describedby="categories-desc"
+      >
+        <DialogTitle>{category !== emptyCategory ? `Edit category ${category.id}` : 'Add a category'}</DialogTitle>
+
+        <TextField
+          autoFocus
+          required
+          margin="dense"
+          id="name"
+          name="name"
+          label="Category name"
+          fullWidth
+          variant="standard"
+          onChange={(e) => setFormData({ name: { value: e.target.value, error: '' } })}
+        />
+        <Button type="submit" variant="contained">
+          Submit
+        </Button>
+      </Dialog>
     </PageContainer>
   );
 }

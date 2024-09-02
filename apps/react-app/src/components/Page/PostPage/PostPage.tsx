@@ -1,36 +1,46 @@
 import { useCallback, useEffect, useState } from 'react';
+
+import { Container, BannerContainer, CommentsContainer, DescriptionContainer } from './PostPage.styles';
 import Banner from '../../Banner';
 import Comments from '../../Comments';
-import { Comment } from '../../../types/index';
-import { Container, BannerContainer, CommentsContainer, DescriptionContainer } from './PostPage.styles';
+import { getPost } from '../../../api';
+import { Comment, Post } from '../../../types/index';
 
-// const postID = "664128a212f505651c18d676"
-
-const post = {
-  id: '1.23',
-  title: 'A good place to camp',
-  image:
-    'https://th.bing.com/th/id/R.e0bad63364a867fea652212c254bf869?rik=avtecz5aXVdevA&riu=http%3a%2f%2fwww.viajejet.com%2fwp-content%2fviajes%2fLago-Moraine-Parque-Nacional-Banff-Alberta-Canada.jpg&ehk=6qRhWDqqQAEkSFs%2bHP8p2Bl6XfPbjznSoORh%2bsEJ%2bQE%3d&risl=&pid=ImgRaw&r=0',
-  description: 'Beautiful water, incredible landscapes and huge bears everywhere. Everything your soul needs.',
-  category: 'Travel',
-  comments: [
-    {
-      id: '2.1',
-      author: 'Anonymus',
-      content:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    },
-    {
-      id: '2.2',
-      author: 'Anonymus',
-      content:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    }
-  ]
-};
+const postID = '66be3a9aa88f2cc7880ce2d8';
 
 function PostPage() {
-  const [comments, setComment] = useState<Comment[]>(post.comments);
+  const [post, setPost] = useState<Post>();
+  const [comments, setComment] = useState<Comment[]>([]);
+
+  useEffect(() => {
+    getPost({
+      postID,
+      onSuccess: async (res) => {
+        setPost({
+          id: res._id,
+          title: res.title,
+          image: res.image,
+          description: res.description,
+          category: res.category,
+          comments: res.comments.map((comment) => comment.content)
+        });
+        setComment(
+          res.comments.map((comment) => {
+            return {
+              id: comment._id,
+              author: comment.author,
+              content: comment.content
+            };
+          })
+        );
+        console.log('Got post!');
+      },
+      onError: async () => {
+        console.log('Post not gotten!');
+      },
+      onLoading: async () => {}
+    });
+  }, []);
 
   const handleCommentSubmition = useCallback(
     (comment: Comment) => {
@@ -40,20 +50,15 @@ function PostPage() {
     [comments]
   );
 
-  useEffect(() => {}, [comments]);
-
-  // ACT 9 - Use postID variable to fetch the post data
   return (
     <Container container>
-      Post page
       <BannerContainer item>
-        <Banner postImage={post.image} postTitle={post.title} />
+        <Banner postImage={post ? post.image : ''} postTitle={post ? post.title : ''} />
       </BannerContainer>
       <DescriptionContainer item>
-        <p>{post.description}</p>
+        <p>{post?.description}</p>
       </DescriptionContainer>
       <CommentsContainer item>
-        {/* <CommentCard author={post.comments[0].author} content={post.comments[0].content} /> */}
         <Comments comments={comments} handleCommentSubmition={handleCommentSubmition} />
       </CommentsContainer>
     </Container>

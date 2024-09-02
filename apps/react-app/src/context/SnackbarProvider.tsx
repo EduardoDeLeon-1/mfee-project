@@ -5,9 +5,10 @@ import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import { Alert } from '../types';
 
 type Severity = 'error' | 'warning' | 'info' | 'success' | undefined;
+type CreateAlert = (message: string, severity?: Severity) => void;
 
 interface SnackbarContextProps {
-  createAlert: (message: string, severity?: Severity) => void;
+  createAlert: CreateAlert;
 }
 
 interface SnackbarProviderProps {

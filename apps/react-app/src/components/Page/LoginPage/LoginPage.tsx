@@ -47,7 +47,6 @@ const LoginPage = () => {
     setPassword(str);
     console.log(password);
   }
-  // ACT 9 - Use the login and register APIs
 
   return (
     <PageContainer container>

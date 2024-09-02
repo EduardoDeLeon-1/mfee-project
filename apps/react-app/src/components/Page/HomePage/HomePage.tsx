@@ -15,7 +15,7 @@ const categories: Category[] = [
 
 function HomePage() {
   const [openForm, setOpenForm] = useState(false);
-  const { posts, getPosts } = useContext(PostContext);
+  const { posts, getPostList } = useContext(PostContext);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
@@ -27,13 +27,13 @@ function HomePage() {
   const handleSelectCategory = useCallback(
     (category: Category) => {
       const isCategoryAlreadySelected = category.id === selectedCategory?.id;
-      getPosts(isCategoryAlreadySelected ? undefined : category.id);
+      getPostList(isCategoryAlreadySelected ? undefined : category.id);
       setSelectedCategory(isCategoryAlreadySelected ? null : category);
     },
-    [selectedCategory, getPosts]
+    [selectedCategory, getPostList]
   );
 
-  useEffect(getPosts, [getPosts]);
+  useEffect(getPostList, [getPostList]);
 
   if (!posts) return <Loading />;
 
@@ -42,7 +42,14 @@ function HomePage() {
       <CreatePostButton handleOpenForm={handleOpenForm} />
       <CategoryButtonGroup categories={categories} selectedCategory={selectedCategory} handleSelectCategory={handleSelectCategory} />
       <PostList posts={posts} selectedCategory={null} handleOpenForm={handleOpenForm} />
-      <Form open={openForm} post={selectedPost} setOpen={setOpenForm} setSelectedPost={setSelectedPost} />
+      <Form
+        open={openForm}
+        post={selectedPost}
+        setOpen={setOpenForm}
+        setSelectedPost={setSelectedPost}
+        categories={null}
+        selectedCategory={null}
+      />
     </>
   );
 }
