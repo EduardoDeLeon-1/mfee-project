@@ -48,6 +48,13 @@ const LoginPage = () => {
     console.log(password);
   }
 
+  // ACT 11 - After the login is successful, use the following to direct the user to the home page:
+  // const { protocol, host } = window.location;
+  // const signInUrl = `${protocol}//${host}/`;
+  // if (window.location.href !== signInUrl) {
+  //   window.location.assign(signInUrl);
+  // }
+
   return (
     <PageContainer container>
       <Grid item md={4} xs={4} lg={3}>

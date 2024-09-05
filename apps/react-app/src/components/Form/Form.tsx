@@ -49,6 +49,9 @@ interface FormProps {
   post: Post | null;
   categories: Category[] | null;
   selectedCategory: Category | null;
+  post: Post | null;
+  categories: Category[] | null;
+  selectedCategory: Category | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedPost: (value: React.SetStateAction<Post | null>) => void;
 }

@@ -20,7 +20,14 @@ function PostList({ posts, selectedCategory, handleOpenForm }: PostListProps) {
   return (
     <Grid container columns={{ md: 12, xs: 12 }}>
       {posts.map((post) => (
-        <PostCard item xs={12} key={post.id} image={post.image} md={posts.length === 1 ? 12 : 6}>
+        <PostCard
+          item
+          xs={12}
+          key={post.id}
+          image={post.image}
+          md={posts.length === 1 ? 12 : 6}
+          // ACT 10 - Navigate to PostPage component and send postID as route params
+        >
           <CardContainer>
             <CardContent>
               <h1>{post.title}</h1>

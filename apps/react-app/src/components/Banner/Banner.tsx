@@ -12,7 +12,11 @@ function Banner({ postImage, postTitle }: BannerProps) {
   return (
     <Container image={postImage}>
       <BannerContent>
-        <Button sx={{ color: 'white' }} startIcon={<ArrowBackIosIcon />}>
+        <Button
+          sx={{ color: 'white' }}
+          startIcon={<ArrowBackIosIcon />}
+          // ACT 10 - Navigate to Home page
+        >
           View Posts
         </Button>
         <BannerTitle variant="h3">{postTitle}</BannerTitle>

@@ -1,6 +1,5 @@
 import { AxiosError, AxiosResponse } from "axios";
 
-// import { SnackbarContext } from './SnackbarProvider';
 import axios from "../axios";
 import { /* Category, */ CategoriesResponse, NewCategory } from "../../types";
 

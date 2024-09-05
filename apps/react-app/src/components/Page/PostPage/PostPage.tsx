@@ -6,7 +6,7 @@ import Comments from '../../Comments';
 import { getPost } from '../../../api';
 import { Comment, Post } from '../../../types/index';
 
-const postID = '66be3a9aa88f2cc7880ce2d8';
+const postID = '664128a212f505651c18d676';
 
 function PostPage() {
   const [post, setPost] = useState<Post>();
@@ -41,6 +41,7 @@ function PostPage() {
       onLoading: async () => {}
     });
   }, []);
+  // ACT 10 - Get postID from route params
 
   const handleCommentSubmition = useCallback(
     (comment: Comment) => {
