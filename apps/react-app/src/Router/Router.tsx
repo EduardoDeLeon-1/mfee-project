@@ -21,7 +21,7 @@ const Router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Page page={<NotFoundPage />} />
+    element: <PrivateRoute route={<Page page={<NotFoundPage />} />} />
   }
 ]);
 

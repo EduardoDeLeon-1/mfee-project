@@ -1,17 +1,16 @@
-import { useContext, useEffect } from "react";
-import { Navigate } from "react-router-dom";
-import { Grid } from "@mui/material";
+import { useContext, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { Grid } from '@mui/material';
 
-import { AuthContext } from "../context";
-import Loading from "../components/Loading";
+import Loading from '../components/Loading';
+import { AuthContext } from '../context';
 
 interface PrivateRouteProps {
   route: React.JSX.Element;
 }
 
 const PrivateRoute = ({ route }: PrivateRouteProps): JSX.Element => {
-  const { authLoading, isAuthenticated, validateToken } =
-    useContext(AuthContext);
+  const { authLoading, isAuthenticated, validateToken } = useContext(AuthContext);
 
   useEffect(() => {
     const initialize = async () => {
@@ -28,10 +27,7 @@ const PrivateRoute = ({ route }: PrivateRouteProps): JSX.Element => {
     );
   }
 
-  // ACT 11 - Navigate to /login when the user is not authenticated
-  return (
-    <>{isAuthenticated ? { ...route } : <Navigate to={"/"} replace />}</>
-  );
+  return <div>{isAuthenticated ? { ...route } : <Navigate to={'/login'} replace />}</div>;
 };
 
 export default PrivateRoute;

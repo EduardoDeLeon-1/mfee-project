@@ -1,9 +1,10 @@
 import { useContext, useState } from 'react';
-import { SnackbarContext } from '../../../context/SnackbarProvider';
-import { FieldValues, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Button, Card, CardActions, CardContent, Grid, TextField, Typography } from '@mui/material';
 
 import { PageContainer } from './LoginPage.styles';
+import { createUser, login } from '../../../api/endpoints/auth';
+import { SnackbarContext } from '../../../context/SnackbarProvider';
 import { NewUser } from '../../../types';
 
 const LoginPage = () => {
@@ -12,29 +13,32 @@ const LoginPage = () => {
   const { createAlert } = useContext(SnackbarContext);
   const { register, handleSubmit } = useForm();
 
-  const onSubmit = (data: FieldValues) => {
-    const isUser = localStorage.getItem(username) ? true : false;
-
-    if (isUser) {
-      const userData = JSON.parse(localStorage.getItem(username) || '');
-      if (userData.password === password) {
+  const onSubmit = () => {
+    login({
+      user: { username, password },
+      onSuccess: () => {
+        const { protocol, host } = window.location;
+        const signInUrl = `${protocol}//${host}/`;
+        if (window.location.href !== signInUrl) {
+          window.location.assign(signInUrl);
+        }
         createAlert('You are successfully logged in!', 'success');
-      } else {
+      },
+      onError: () => {
         createAlert('Email or password is not matching with our record.', 'error');
       }
-    } else {
-      createAlert('Email or password is not matching with our record.', 'error');
-    }
+    });
   };
 
   const handleSignUp = ({ username, password }: NewUser) => {
-    localStorage.setItem(
-      username,
-      JSON.stringify({
-        username: username,
-        password: password
-      })
-    );
+    createUser({
+      newUser: {
+        username,
+        password,
+        firstName: 'John',
+        lastName: 'Smith'
+      }
+    });
     createAlert('User successfully signed up!', 'success');
   };
 
@@ -47,13 +51,6 @@ const LoginPage = () => {
     setPassword(str);
     console.log(password);
   }
-
-  // ACT 11 - After the login is successful, use the following to direct the user to the home page:
-  // const { protocol, host } = window.location;
-  // const signInUrl = `${protocol}//${host}/`;
-  // if (window.location.href !== signInUrl) {
-  //   window.location.assign(signInUrl);
-  // }
 
   return (
     <PageContainer container>
@@ -89,7 +86,7 @@ const LoginPage = () => {
                 variant="outlined"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSignUp({ firstname: 'John', lastname: 'Smith', username: username, password: password });
+                  handleSignUp({ firstName: 'John', lastName: 'Smith', username: username, password: password });
                 }}
               >
                 SIGN UP

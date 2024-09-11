@@ -1,7 +1,7 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from 'axios';
 
-import axios from "../axios";
-import { User, AuthResponse, AuthLoginResponse, NewUser } from "../../types";
+import axios from '../axios';
+import { User, AuthResponse, AuthLoginResponse, NewUser } from '../../types';
 
 export const createUser = async ({
   newUser,
@@ -17,8 +17,8 @@ export const createUser = async ({
   onLoading && onLoading(true);
 
   await axios({
-    method: "post",
-    url: `/auth/register`,
+    method: 'post',
+    url: '/auth/register',
     data: newUser,
   })
     .then((response: AxiosResponse) => {
@@ -46,15 +46,15 @@ export const login = async ({
   onLoading && onLoading(true);
 
   await axios({
-    method: "post",
-    url: `/auth/login`,
+    method: 'post',
+    url: '/auth/login',
     data: user,
   })
     .then((response: AxiosResponse) => {
       const data: AuthLoginResponse = response.data;
       if (response.status === 200 && onSuccess) {
         const token = data.accessToken;
-        localStorage.setItem("apiToken", token);
+        localStorage.setItem('apiToken', token);
         onSuccess(data);
       }
     })
@@ -77,13 +77,13 @@ export const logout = async ({
   onLoading && onLoading(true);
 
   await axios({
-    url: `/auth/logout`,
-    method: "post",
+    url: '/auth/logout',
+    method: 'post',
   })
     .then((response: AxiosResponse) => {
       const data: AuthResponse = response.data;
       if (response.status === 200 && onSuccess) {
-        localStorage.removeItem("apiToken");
+        localStorage.removeItem('apiToken');
         onSuccess(data);
       }
     })
@@ -106,8 +106,8 @@ export const refreshToken = async ({
   onLoading && onLoading(true);
 
   await axios({
-    url: `/auth/refresh`,
-    method: "post",
+    url: '/auth/refresh',
+    method: 'post',
   })
     .then((response: AxiosResponse) => {
       const data: AuthResponse = response.data;

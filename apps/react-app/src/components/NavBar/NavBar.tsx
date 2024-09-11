@@ -1,10 +1,65 @@
-import React from 'react';
-import Grid from '@mui/material/Grid';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import { Box, Button, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+
+import { AuthContext } from '../../context';
+import { SnackbarContext } from '../../context/SnackbarProvider';
+import { logout } from '../../api/endpoints/auth';
 
 export default function NavBar(): React.JSX.Element {
+  const { createAlert } = useContext(SnackbarContext);
+  const { isAuthenticated } = useContext(AuthContext);
+
+  const loginLink = (
+    <NavLink
+      to="/login"
+      end
+      style={({ isActive }) => ({
+        gap: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: '10px',
+        backgroundColor: isActive ? '#307ecc' : 'transparent',
+        padding: '0.5em',
+        textDecoration: 'none',
+        color: 'white'
+      })}
+    >
+      Login
+    </NavLink>
+  );
+
+  const logoutLink = (
+    <Button
+      style={{
+        gap: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: '10px',
+        padding: '0.5em',
+        textDecoration: 'none',
+        textTransform: 'none',
+        color: 'white'
+      }}
+      onClick={() =>
+        logout({
+          onSuccess: () => {
+            const { protocol, host } = window.location;
+            const signInUrl = `${protocol}//${host}/login`;
+            if (window.location.href !== signInUrl) {
+              window.location.assign(signInUrl);
+            }
+            createAlert('You are successfully logged out!', 'success');
+          }
+        })
+      }
+    >
+      Logout
+    </Button>
+  );
+
   return (
     <Grid
       item
@@ -50,34 +105,19 @@ export default function NavBar(): React.JSX.Element {
           to="/categories"
           end
           style={({ isActive }) => ({
-            textDecoration: 'none',
-            color: 'white',
-            display: 'flex',
             gap: '16px',
+            display: 'flex',
             alignItems: 'center',
-            padding: '0.5em',
             borderRadius: '10px',
-            backgroundColor: isActive ? '#307ecc' : 'transparent'
+            padding: '0.5em',
+            backgroundColor: isActive ? '#307ecc' : 'transparent',
+            textDecoration: 'none',
+            color: 'white'
           })}
         >
           Categories
         </NavLink>
-        <NavLink
-          to="/login"
-          end
-          style={({ isActive }) => ({
-            textDecoration: 'none',
-            color: 'white',
-            display: 'flex',
-            gap: '16px',
-            alignItems: 'center',
-            padding: '0.5em',
-            borderRadius: '10px',
-            backgroundColor: isActive ? '#307ecc' : 'transparent'
-          })}
-        >
-          Login
-        </NavLink>
+        {isAuthenticated ? logoutLink : loginLink}
       </Box>
     </Grid>
   );
