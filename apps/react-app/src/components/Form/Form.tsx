@@ -49,9 +49,6 @@ interface FormProps {
   post: Post | null;
   categories: Category[] | null;
   selectedCategory: Category | null;
-  post: Post | null;
-  categories: Category[] | null;
-  selectedCategory: Category | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedPost: (value: React.SetStateAction<Post | null>) => void;
 }
@@ -95,7 +92,7 @@ const Form = ({ open, post, categories, selectedCategory, setOpen, setSelectedPo
 
     post
       ? await updatePostData({
-          postID: post.id,
+          postId: post.id,
           updatedPost: newPost,
           selectedCategoryID: selectedCategory?.id
         })

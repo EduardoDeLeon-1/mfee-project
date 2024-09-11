@@ -58,12 +58,12 @@ export const getPostsByCategory = async ({
 };
 
 export const getPost = async ({
-  postID,
+  postId,
   onSuccess,
   onError,
   onLoading,
 }: {
-  postID: string;
+  postId: string;
   onSuccess?: (data: PostResponse) => void;
   onError?: (error: AxiosError) => void;
   onLoading?: (isLoading: boolean) => void;
@@ -71,7 +71,7 @@ export const getPost = async ({
   onLoading && onLoading(true);
 
   await axios({
-    url: `/posts/${postID}`,
+    url: `/posts/${postId}`,
     method: "get",
   })
     .then((response: AxiosResponse) => {
@@ -115,13 +115,13 @@ export const createPost = async ({
 };
 
 export const updatePost = async ({
-  postID,
+  postId,
   updatedPost,
   onSuccess,
   onError,
   onLoading,
 }: {
-  postID: string;
+  postId: string;
   updatedPost: NewPost;
   onSuccess?: (data: PostsResponse) => void;
   onError?: (error: AxiosError) => void;
@@ -130,7 +130,7 @@ export const updatePost = async ({
   onLoading && onLoading(true);
 
   await axios({
-    url: `/posts/${postID}`,
+    url: `/posts/${postId}`,
     method: "patch",
     data: updatedPost,
   })
@@ -146,12 +146,12 @@ export const updatePost = async ({
 };
 
 export const deletePost = async ({
-  postID,
+  postId,
   onSuccess,
   onError,
   onLoading,
 }: {
-  postID: string;
+  postId: string;
   onSuccess?: () => void;
   onError?: (error: AxiosError) => void;
   onLoading?: (isLoading: boolean) => void;
@@ -159,7 +159,7 @@ export const deletePost = async ({
   onLoading && onLoading(true);
 
   await axios({
-    url: `/posts/${postID}`,
+    url: `/posts/${postId}`,
     method: "delete",
   })
     .then((response: AxiosResponse) => {

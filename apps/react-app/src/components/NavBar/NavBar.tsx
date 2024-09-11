@@ -1,7 +1,7 @@
 import React from 'react';
 import Grid from '@mui/material/Grid';
 import { NavLink } from 'react-router-dom';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 
 export default function NavBar(): React.JSX.Element {
@@ -37,6 +37,7 @@ export default function NavBar(): React.JSX.Element {
           </Typography>
         </Box>
       </NavLink>
+
       <Box
         sx={{
           display: 'flex',
@@ -45,32 +46,38 @@ export default function NavBar(): React.JSX.Element {
           gap: 2
         }}
       >
-        {/* ACT 10 - Use NavLink to navigate to categories page and change the backgroundcolor when is active */}
-        <Button
-          sx={{
+        <NavLink
+          to="/categories"
+          end
+          style={({ isActive }) => ({
             textDecoration: 'none',
-            fontWeight: 'bold',
             color: 'white',
-            backgroundColor: '#1e8fff',
-            borderRadius: '8px',
-            padding: '8px'
-          }}
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'center',
+            padding: '0.5em',
+            borderRadius: '10px',
+            backgroundColor: isActive ? '#307ecc' : 'transparent'
+          })}
         >
           Categories
-        </Button>
-        {/* ACT 10 - Use NavLink to navigate to login page and change the backgroundcolor when is active*/}
-        <Button
-          sx={{
+        </NavLink>
+        <NavLink
+          to="/login"
+          end
+          style={({ isActive }) => ({
             textDecoration: 'none',
-            fontWeight: 'bold',
             color: 'white',
-            backgroundColor: '#1e8fff',
-            borderRadius: '8px',
-            padding: '8px'
-          }}
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'center',
+            padding: '0.5em',
+            borderRadius: '10px',
+            backgroundColor: isActive ? '#307ecc' : 'transparent'
+          })}
         >
           Login
-        </Button>
+        </NavLink>
       </Box>
     </Grid>
   );

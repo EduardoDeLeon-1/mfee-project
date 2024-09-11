@@ -13,14 +13,14 @@ interface PostContextProps {
   posts: Post[] | null;
   loadingPosts: boolean;
   addPost: (newPost: NewPost) => void;
-  removePost: ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => void;
+  removePost: ({ postId, selectedCategoryID }: { postId: string; selectedCategoryID?: string }) => void;
   getPostList: (selectedCategoryID?: string) => void;
   updatePostData: ({
-    postID,
+    postId,
     updatedPost,
     selectedCategoryID
   }: {
-    postID: string;
+    postId: string;
     updatedPost: NewPost;
     selectedCategoryID?: string;
   }) => void;
@@ -56,21 +56,24 @@ export function PostProvider({ children }: PostProviderProps): React.JSX.Element
   }, []);
 
   const getPostList = useCallback(
-    async (selectedCategoryID?: string) => {
-      const onSuccess = async (data: PostsResponse[]) => {
-        const newList = data.map((post) => ({
-          id: post._id,
-          title: post.title,
-          image: post.image,
-          description: post.description,
-          category: post.category,
-          comments: post.comments
-        }));
-        setPosts(newList);
-      };
+    (selectedCategoryID?: string) => {
+      async function process() {
+        const onSuccess = async (data: PostsResponse[]) => {
+          const newList = data.map((post) => ({
+            id: post._id,
+            title: post.title,
+            image: post.image,
+            description: post.description,
+            category: post.category,
+            comments: post.comments
+          }));
+          setPosts(newList);
+        };
 
-      const params = { onSuccess, onError, onLoading };
-      selectedCategoryID ? await getPostsByCategory({ selectedCategoryID, ...params }) : await getPosts(params);
+        const params = { onSuccess, onError, onLoading };
+        selectedCategoryID ? await getPostsByCategory({ selectedCategoryID, ...params }) : await getPosts(params);
+      }
+      process();
     },
     [onError]
   );
@@ -91,7 +94,7 @@ export function PostProvider({ children }: PostProviderProps): React.JSX.Element
   );
 
   const updatePostData = useCallback(
-    async ({ postID, updatedPost, selectedCategoryID }: { postID: string; updatedPost: NewPost; selectedCategoryID?: string }) => {
+    async ({ postId, updatedPost, selectedCategoryID }: { postId: string; updatedPost: NewPost; selectedCategoryID?: string }) => {
       const onSuccess = async () => {
         await getPostList(selectedCategoryID);
         // createAlert({
@@ -100,13 +103,13 @@ export function PostProvider({ children }: PostProviderProps): React.JSX.Element
         // });
       };
 
-      await updatePost({ postID, updatedPost, onSuccess, onError, onLoading });
+      await updatePost({ postId, updatedPost, onSuccess, onError, onLoading });
     },
     [onError, getPostList]
   );
 
   const removePost = useCallback(
-    async ({ postID, selectedCategoryID }: { postID: string; selectedCategoryID?: string }) => {
+    async ({ postId, selectedCategoryID }: { postId: string; selectedCategoryID?: string }) => {
       const onSuccess = async () => {
         await getPostList(selectedCategoryID);
         // createAlert({
@@ -115,7 +118,7 @@ export function PostProvider({ children }: PostProviderProps): React.JSX.Element
         // });
       };
       setLoadingPosts(true);
-      await deletePost({ postID, onSuccess, onError });
+      await deletePost({ postId, onSuccess, onError });
     },
     [onError, getPostList]
   );

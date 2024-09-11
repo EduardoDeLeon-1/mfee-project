@@ -4,13 +4,13 @@ import axios from "../axios";
 import { NewComment, CommentResponse } from "../../types";
 
 export const createComment = async ({
-  postID,
+  postId,
   newComment,
   onSuccess,
   onError,
   onLoading,
 }: {
-  postID: string;
+  postId: string;
   newComment: NewComment;
   onSuccess?: (data: CommentResponse) => void;
   onError?: (error: AxiosError) => void;
@@ -20,7 +20,7 @@ export const createComment = async ({
 
   await axios({
     method: "post",
-    url: `/posts/${postID}/comments`,
+    url: `/posts/${postId}/comments`,
     data: newComment,
   })
     .then((response: AxiosResponse) => {

@@ -2,11 +2,12 @@ import { useContext } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Grid, IconButton, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
+import { CardActions, CardContainer, CardContent, PostCard } from './PostList.styles';
 import { shorten } from '../../common/utils';
 import { Category, Post } from '../../types';
 import { PostContext } from '../../context';
-import { CardActions, CardContainer, CardContent, PostCard } from './PostList.styles';
 
 interface PostListProps {
   posts: Post[];
@@ -17,17 +18,15 @@ interface PostListProps {
 function PostList({ posts, selectedCategory, handleOpenForm }: PostListProps) {
   const { removePost } = useContext(PostContext);
 
+  const navigate = useNavigate();
+  const goToPost = (postId: string) => {
+    navigate(`post/${postId}`);
+  };
+
   return (
     <Grid container columns={{ md: 12, xs: 12 }}>
       {posts.map((post) => (
-        <PostCard
-          item
-          xs={12}
-          key={post.id}
-          image={post.image}
-          md={posts.length === 1 ? 12 : 6}
-          // ACT 10 - Navigate to PostPage component and send postID as route params
-        >
+        <PostCard item xs={12} key={post.id} image={post.image} md={posts.length === 1 ? 12 : 6} onClick={() => goToPost(post.id)}>
           <CardContainer>
             <CardContent>
               <h1>{post.title}</h1>
@@ -53,7 +52,7 @@ function PostList({ posts, selectedCategory, handleOpenForm }: PostListProps) {
                 onClick={(e) => {
                   e.stopPropagation();
                   removePost({
-                    postID: post.id,
+                    postId: post.id,
                     selectedCategoryID: selectedCategory?.id
                   });
                 }}

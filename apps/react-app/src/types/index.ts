@@ -127,8 +127,8 @@ export interface User {
 }
 
 export interface NewUser extends User {
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface AuthResponse {

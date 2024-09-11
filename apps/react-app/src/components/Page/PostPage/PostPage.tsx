@@ -5,16 +5,16 @@ import Banner from '../../Banner';
 import Comments from '../../Comments';
 import { getPost } from '../../../api';
 import { Comment, Post } from '../../../types/index';
-
-const postID = '664128a212f505651c18d676';
+import { useParams } from 'react-router-dom';
 
 function PostPage() {
   const [post, setPost] = useState<Post>();
   const [comments, setComment] = useState<Comment[]>([]);
 
+  const { postId } = useParams();
   useEffect(() => {
     getPost({
-      postID,
+      postId: postId ?? '',
       onSuccess: async (res) => {
         setPost({
           id: res._id,
@@ -40,8 +40,7 @@ function PostPage() {
       },
       onLoading: async () => {}
     });
-  }, []);
-  // ACT 10 - Get postID from route params
+  }, [postId]);
 
   const handleCommentSubmition = useCallback(
     (comment: Comment) => {
